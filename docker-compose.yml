@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=video_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+#  fastapi-service:
+#    build: ./fastapi_service
+#    container_name: fastapi-service
+#    depends_on:
+#      - postgres
+#    ports:
+#      - "8000:8000"
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=localhost
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=video_db
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=postgres
+
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+
+      - N8N_ENCRYPTION_KEY=my-secret-key
+      - EXECUTIONS_MODE=regular
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+    ports:
+      - "5678:5678"
+    depends_on:
+      - postgres
+    volumes:
+      - n8n_data:/home/node/.n8n
+    network_mode: "host"
+
+volumes:
+  postgres_data:
+  n8n_data:
+

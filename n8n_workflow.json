@@ -1,0 +1,244 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video_process",
+        "options": {}
+      },
+      "name": "Webhook - Video Process",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
+      "id": "b616a515-8c33-4f99-bd45-7f6db17d86e6"
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:8000/face_recognition?video_id={{ $json.body.video_id }}",
+        "options": {}
+      },
+      "name": "Face Recognition",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ],
+      "id": "1a82cd4c-418d-4062-81f5-beb33e70afa5"
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:8000/expression_analisys?video_id={{ $json.video_id }}",
+        "options": {}
+      },
+      "name": "Expression Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ],
+      "id": "c9d6e3b4-457b-44af-a96f-0fd0917a3cfa"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/activity_detection",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "video_id",
+              "value": "={{ $json.video_id }}"
+            }
+          ]
+        }
+      },
+      "name": "Activity Detection",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "id": "3a7399fb-51df-4e9a-b450-14a0c2c56a2e"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/resume",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "video_id",
+              "value": "={{ $json.video_id }}"
+            }
+          ]
+        }
+      },
+      "name": "Resume",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "f7c454fc-7979-4623-987a-42b00a06227f"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/annotate_video",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "video_id",
+              "value": "={{ $json.video_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1020,
+        0
+      ],
+      "id": "4873f2c8-68f0-4ada-ab7e-e61f18428520",
+      "name": "Annotate Video"
+    },
+    {
+      "parameters": {
+        "fromEmail": "anibal.ferreira@ceudivinaharmonia.com",
+        "toEmail": "anibalmf1@gmail.com",
+        "subject": "Processamento de Video",
+        "emailFormat": "text",
+        "text": "={{ $json.video_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1220,
+        0
+      ],
+      "id": "01ca627c-5878-458e-b8dc-83324891319c",
+      "name": "Send Email",
+      "webhookId": "b53d6713-79ec-4aeb-bed5-3f7bc7941442",
+      "credentials": {
+        "smtp": {
+          "id": "sQJVgfXHzJWrKvMs",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook - Video Process": [
+      {
+        "json": {
+          "headers": {
+            "host": "localhost:5678",
+            "user-agent": "python-requests/2.32.3",
+            "accept-encoding": "gzip, deflate",
+            "accept": "*/*",
+            "connection": "keep-alive",
+            "content-length": "52",
+            "content-type": "application/json"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "video_id": "d0ec69fa-5e6b-4023-9104-c067e48d4671"
+          },
+          "webhookUrl": "http://localhost:5678/webhook/video_process",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook - Video Process": {
+      "main": [
+        [
+          {
+            "node": "Face Recognition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Face Recognition": {
+      "main": [
+        [
+          {
+            "node": "Expression Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expression Analysis": {
+      "main": [
+        [
+          {
+            "node": "Activity Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activity Detection": {
+      "main": [
+        [
+          {
+            "node": "Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume": {
+      "main": [
+        [
+          {
+            "node": "Annotate Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Annotate Video": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9d6f9b73-ac78-474a-8df7-4f72ded30d8a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0795f6e691ed97ac8b772b9418608998db3b01465bd650712d19abec7f26dc8d"
+  },
+  "id": "cuqXZhJunBMBpLwf",
+  "tags": []
+}
