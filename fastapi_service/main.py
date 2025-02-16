@@ -317,6 +317,7 @@ def resume(video_id: str):
     else:
         principais_emocoes = "Nenhuma emoção detectada"
 
+    anomalias_segmentos = []
     if activities:
         activities_list = activities
         activities_labels = [item["activity"] for item in activities_list if "activity" in item]
@@ -324,13 +325,8 @@ def resume(video_id: str):
         principais_atividades = ", ".join([activity for activity, _ in counter_activities.most_common()])
 
         anomalias_segmentos = [f"segmento {item['segment']}" for item in activities_list if item.get("activity", "").lower() == "anomalia"]
-        if anomalias_segmentos:
-            anomalias_str = ", ".join(anomalias_segmentos)
-        else:
-            anomalias_str = "Nenhuma anomalia detectada"
     else:
         principais_atividades = "Nenhuma atividade detectada"
-        anomalias_str = "Nenhuma anomalia detectada"
 
     data_hora = created_at.strftime("%d/%m/%Y %H:%M:%S") if isinstance(created_at, datetime) else str(created_at)
 
@@ -338,7 +334,8 @@ def resume(video_id: str):
         f"O processamento do vídeo '{original_name}' recebido em {data_hora} foi realizado, segue resumo:\n\n"
         f"Principais emoções: {principais_emocoes}\n\n"
         f"Principais atividades: {principais_atividades}\n\n"
-        f"Anomalias detectadas: {anomalias_str}"
+        f"Total de frames: {total_frames}\n\n"
+        f"Anomalias detectadas: {len(anomalias_segmentos)}"
     )
 
     update_sql = "UPDATE video_states SET summary = %s WHERE video_id = %s"
@@ -352,7 +349,7 @@ def resume(video_id: str):
         "summary": summary_text,
         "principais_emocoes": principais_emocoes,
         "principais_atividades": principais_atividades,
-        "anomalias": anomalias_str
+        "anomalias": len(anomalias_segmentos)
     }
 
 
